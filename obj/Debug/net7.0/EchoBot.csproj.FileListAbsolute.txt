@@ -464,3 +464,5 @@ D:\code\azure-csharp-bot2-dotnet7\bin\Debug\net7.0\runtimes\win\lib\net7.0\Syste
 D:\code\azure-csharp-bot2-dotnet7\bin\Debug\net7.0\runtimes\win\lib\net7.0\System.ServiceProcess.ServiceController.dll
 D:\code\azure-csharp-bot2-dotnet7\bin\Debug\net7.0\runtimes\win\lib\net7.0\System.Speech.dll
 D:\code\azure-csharp-bot2-dotnet7\bin\Debug\net7.0\runtimes\win\lib\net7.0\System.Threading.AccessControl.dll
+D:\code\azure-csharp-bot2-dotnet7\bin\Debug\net7.0\parameters-for-template-BotApp-with-rg.json
+D:\code\azure-csharp-bot2-dotnet7\bin\Debug\net7.0\template-BotApp-with-rg.json
