@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Schema;
 using System.Management.Automation;
+using System.Management.Automation.Runspaces;
+using Microsoft.Web.Administration;
 
 namespace EchoBot.Bots
 {
@@ -17,12 +19,23 @@ namespace EchoBot.Bots
     {
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
+            if(turnContext.Activity.Text == "listar AppPools")
+            {
+            InitialSessionState initial = InitialSessionState.CreateDefault();
+            initial.ExecutionPolicy = 0;
+            //Server: C:\Windows\System32\WindowsPowerShell\v1.0\Modules\IISAdministration
+            //Desktop: C:\Program Files\WindowsPowerShell\Modules\IISAdministration\1.1.0.0
+            initial.ImportPSModule(new string[] {"C:\\Program Files\\WindowsPowerShell\\Modules\\IISAdministration\\1.1.0.0\\IISAdministration.psd1"} );
+            Runspace runspace = RunspaceFactory.CreateRunspace(initial);
+            runspace.Open(); 
             PowerShell ps = PowerShell.Create();
-            ps.AddCommand("Get-Process");
-            var cadeba = ps.Invoke()[0].Members["ProcessName"].Value.ToString();
+            ps.Runspace = runspace;
+            ps.Commands.AddCommand("Get-IISAppPool");
+            var cadeba = ps.Invoke()[0].Members["Name"].Value.ToString();
 
             var replyText = $"Echo: {turnContext.Activity.Text}" + cadeba;
             await turnContext.SendActivityAsync(MessageFactory.Text(replyText, replyText), cancellationToken);
+            }
         }
 
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
