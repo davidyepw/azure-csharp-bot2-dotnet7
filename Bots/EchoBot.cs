@@ -19,12 +19,16 @@ namespace EchoBot.Bots
     {
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            if(turnContext.Activity.Text == "listar AppPools")
+            Console.WriteLine("**************on message start*********");
+            if(turnContext.Activity.Text.Contains("listarAppPools"))
             {
+            String remoteIISServer = "";
+            remoteIISServer = turnContext.Activity.Text.Substring(turnContext.Activity.Text.IndexOf(" ")+1);
+            Console.WriteLine(remoteIISServer);
             InitialSessionState initial = InitialSessionState.CreateDefault();
             initial.ExecutionPolicy = 0;
             //Server: C:\Windows\System32\WindowsPowerShell\v1.0\Modules\IISAdministration
-            initial.ImportPSModule(new string[] {"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\Modules\\IISAdministration\\IISAdministration.psd1"} );
+            //initial.ImportPSModule(new string[] {"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\Modules\\IISAdministration\\IISAdministration.psd1"} );
 
             //Desktop: C:\Program Files\WindowsPowerShell\Modules\IISAdministration\1.1.0.0
             //initial.ImportPSModule(new string[] {"C:\\Program Files\\WindowsPowerShell\\Modules\\IISAdministration\\1.1.0.0\\IISAdministration.psd1"} );
@@ -32,10 +36,23 @@ namespace EchoBot.Bots
             runspace.Open(); 
             PowerShell ps = PowerShell.Create();
             ps.Runspace = runspace;
-            ps.Commands.AddCommand("Get-IISAppPool");
-            var cadeba = ps.Invoke()[0].Members["Name"].Value.ToString();
 
-            var replyText = $"Echo: {turnContext.Activity.Text}" + cadeba;
+            
+            ps.Commands.AddCommand("invoke-command")
+                .AddParameter("ComputerName", remoteIISServer)
+                .AddParameter("ScriptBlock", ScriptBlock.Create("Get-IISAppPool"));
+                       
+            
+            /*
+            ps.Commands.AddCommand("get-process");
+            */
+            var cadena = "";
+            foreach(PSObject item in ps.Invoke()){
+                Console.WriteLine("inside foreach");
+                Console.WriteLine("item value:" +item.Members["Name"].Value.ToString());
+                cadena += item.Members["Name"].Value.ToString() + " " + item.Members["State"].Value.ToString() + "\n\n";
+            }
+            var replyText = cadena;
             await turnContext.SendActivityAsync(MessageFactory.Text(replyText, replyText), cancellationToken);
             }
         }
@@ -44,7 +61,7 @@ namespace EchoBot.Bots
         {
             
             
-            var welcomeText = "Hello and welcome!";
+            var welcomeText = "Comandos disponibles: \r\n listarAppPools SERVERNAME \r\n listarWebsites SERVERNAME";
             foreach (var member in membersAdded)
             {
                 if (member.Id != turnContext.Activity.Recipient.Id)
