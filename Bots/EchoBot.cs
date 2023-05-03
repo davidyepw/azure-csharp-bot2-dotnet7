@@ -24,8 +24,10 @@ namespace EchoBot.Bots
             InitialSessionState initial = InitialSessionState.CreateDefault();
             initial.ExecutionPolicy = 0;
             //Server: C:\Windows\System32\WindowsPowerShell\v1.0\Modules\IISAdministration
+            initial.ImportPSModule(new string[] {"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\Modules\\IISAdministration\\IISAdministration.psd1"} );
+
             //Desktop: C:\Program Files\WindowsPowerShell\Modules\IISAdministration\1.1.0.0
-            initial.ImportPSModule(new string[] {"C:\\Program Files\\WindowsPowerShell\\Modules\\IISAdministration\\1.1.0.0\\IISAdministration.psd1"} );
+            //initial.ImportPSModule(new string[] {"C:\\Program Files\\WindowsPowerShell\\Modules\\IISAdministration\\1.1.0.0\\IISAdministration.psd1"} );
             Runspace runspace = RunspaceFactory.CreateRunspace(initial);
             runspace.Open(); 
             PowerShell ps = PowerShell.Create();
