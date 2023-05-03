@@ -34,24 +34,46 @@ namespace EchoBot.Bots
             //initial.ImportPSModule(new string[] {"C:\\Program Files\\WindowsPowerShell\\Modules\\IISAdministration\\1.1.0.0\\IISAdministration.psd1"} );
             Runspace runspace = RunspaceFactory.CreateRunspace(initial);
             runspace.Open(); 
+            Pipeline pipeline = runspace.CreatePipeline();
+            /*    
             PowerShell ps = PowerShell.Create();
             ps.Runspace = runspace;
-
             
             ps.Commands.AddCommand("invoke-command")
                 .AddParameter("ComputerName", remoteIISServer)
                 .AddParameter("ScriptBlock", ScriptBlock.Create("Get-IISAppPool"));
-                       
+            */         
             
+            //Command myCommand = new Command("get-process");
+
+            Command myCommand = new Command("invoke-command");
+            myCommand.Parameters.Add("ComputerName", remoteIISServer);
+            myCommand.Parameters.Add("ScriptBlock", ScriptBlock.Create("Get-IISAppPool"));
+            
+            Command myCommand2 = new Command("select-object");
+
+            var props = new string[] { "Name","State","ManagedPipelineMode","ManagedRuntimeVersion" };
+            myCommand2.Parameters.Add("Property", props);
+
+            Command myCommand3 = new Command("format-table");
+            myCommand3.Parameters.Add("AutoSize");
+
+            Command myCommand4 = new Command("out-string");
+            
+            pipeline.Commands.Add(myCommand);
+            pipeline.Commands.Add(myCommand2);
+            pipeline.Commands.Add(myCommand3);
+            pipeline.Commands.Add(myCommand4);
+
+            var cadena = pipeline.Invoke()[0].ToString();
             /*
-            ps.Commands.AddCommand("get-process");
-            */
-            var cadena = "";
+            var cadena = "Nombre AppPool, Estado, .NET CLR Version\n\n";
             foreach(PSObject item in ps.Invoke()){
                 Console.WriteLine("inside foreach");
                 Console.WriteLine("item value:" +item.Members["Name"].Value.ToString());
-                cadena += item.Members["Name"].Value.ToString() + " " + item.Members["State"].Value.ToString() + "\n\n";
-            }
+                //cadena += item.Members["Name"].Value.ToString() + "," + item.Members["State"].Value.ToString() + "," + item.Members["ManagedRuntimeVersion"].Value.ToString() + "\n\n";
+                cadena += item.Members["Name"].Value.ToString()+ "\n\n";
+            }*/
             var replyText = cadena;
             await turnContext.SendActivityAsync(MessageFactory.Text(replyText, replyText), cancellationToken);
             }
